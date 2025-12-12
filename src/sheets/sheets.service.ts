@@ -15,8 +15,22 @@ export class SheetsService {
 
     private async initializeSheets() {
         try {
+            // Explicitly load the service account file based on CWD
+            // This avoids issues with relative paths in different environments
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const path = await import('path');
+            const keyFilePath = path.join(process.cwd(), 'service-account.json');
+
+            // eslint-disable-next-line @typescript-eslint/no-require-imports
+            const credentials = require(keyFilePath);
+
+            // Fix private_key formatting issues (replace literal \n with actual newlines)
+            if (credentials.private_key) {
+                credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+            }
+
             const auth = new google.auth.GoogleAuth({
-                keyFile: this.configService.get<string>('GOOGLE_APPLICATION_CREDENTIALS'),
+                credentials,
                 scopes: ['https://www.googleapis.com/auth/spreadsheets'],
             });
 
@@ -24,7 +38,7 @@ export class SheetsService {
             this.spreadsheetId = this.configService.get<string>('GOOGLE_SHEET_ID') || '';
             this.tabName = this.configService.get<string>('GOOGLE_SHEET_TAB_NAME') || 'Employees';
 
-            this.logger.log('Google Sheets client initialized');
+            this.logger.log('Google Sheets client initialized with explicit credentials');
         } catch (error) {
             this.logger.error('Failed to initialize Google Sheets client', error);
         }

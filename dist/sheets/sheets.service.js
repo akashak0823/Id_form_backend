@@ -26,14 +26,20 @@ let SheetsService = SheetsService_1 = class SheetsService {
     }
     async initializeSheets() {
         try {
+            const path = await import('path');
+            const keyFilePath = path.join(process.cwd(), 'service-account.json');
+            const credentials = require(keyFilePath);
+            if (credentials.private_key) {
+                credentials.private_key = credentials.private_key.replace(/\\n/g, '\n');
+            }
             const auth = new googleapis_1.google.auth.GoogleAuth({
-                keyFile: this.configService.get('GOOGLE_APPLICATION_CREDENTIALS'),
+                credentials,
                 scopes: ['https://www.googleapis.com/auth/spreadsheets'],
             });
             this.sheetsClient = googleapis_1.google.sheets({ version: 'v4', auth });
             this.spreadsheetId = this.configService.get('GOOGLE_SHEET_ID') || '';
             this.tabName = this.configService.get('GOOGLE_SHEET_TAB_NAME') || 'Employees';
-            this.logger.log('Google Sheets client initialized');
+            this.logger.log('Google Sheets client initialized with explicit credentials');
         }
         catch (error) {
             this.logger.error('Failed to initialize Google Sheets client', error);

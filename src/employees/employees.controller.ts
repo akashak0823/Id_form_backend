@@ -17,7 +17,9 @@ export class EmployeesController {
         { name: 'incomeCertificate', maxCount: 1 },
         { name: 'nativityCertificate', maxCount: 1 },
         { name: 'educationalCertificates', maxCount: 5 },
-    ]))
+    ], {
+        limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+    }))
     async create(
         @UploadedFiles() files: {
             photo?: Express.Multer.File[],

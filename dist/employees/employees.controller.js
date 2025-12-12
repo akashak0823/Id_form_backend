@@ -47,7 +47,9 @@ __decorate([
         { name: 'incomeCertificate', maxCount: 1 },
         { name: 'nativityCertificate', maxCount: 1 },
         { name: 'educationalCertificates', maxCount: 5 },
-    ])),
+    ], {
+        limits: { fileSize: 5 * 1024 * 1024 }
+    })),
     __param(0, (0, common_1.UploadedFiles)()),
     __param(1, (0, common_1.Body)('data')),
     __metadata("design:type", Function),
